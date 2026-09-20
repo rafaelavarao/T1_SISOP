@@ -6,12 +6,14 @@ de referência e uma implementação paralela com Pthreads.
 
 ## Autoria
 
-- [Seu nome] — <rafaelavarao12@gmail.com>
-- Gauterio — <gabrielgauterio2208@gmail.com>
+- Rafaela Varão — <rafaelavarao12@gmail.com>
+- Gabriel Galdeiro
+- Gabriel Dalbem
 
 ## Compilação
 
-Requer um compilador C com suporte a Pthreads (Linux ou macOS).
+Requer um compilador C com suporte a Pthreads (Linux ou macOS). Em Windows, use o WSL (Ubuntu):
+`sudo apt install build-essential` e depois os comandos abaixo dentro do WSL.
 
 ```sh
 make            # compila conta-objetos-sequencial, conta-objetos-paralelo e gera-matriz
@@ -107,21 +109,58 @@ trabalhando juntas, não uma esperando a outra).
 
 ## Matrizes de teste obrigatórias
 
-| Ex. | Dimensões | Esperado | Sequencial | Paralelo |
-|-----|-----------|----------|------------|----------|
-| 1   | 5 x 5     | 3        | A preencher | A preencher |
-| 2   | 6 x 8     | 4        | A preencher | A preencher |
-| 3   | 8 x 8     | 5        | A preencher | A preencher |
-| 4   | 9 x 12    | 6        | A preencher | A preencher |
-| 5   | 12 x 12   | 7        | A preencher | A preencher |
+| Ex. | Dimensões | Esperado | Sequencial | Paralelo (2x2) |
+|-----|-----------|----------|------------|----------------|
+| 1   | 5 x 5     | 3        | 3          | 3              |
+| 2   | 6 x 8     | 4        | 4          | 4              |
+| 3   | 8 x 8     | 5        | 5          | 5              |
+| 4   | 9 x 12    | 6        | 6          | 6              |
+| 5   | 12 x 12   | 7        | 7          | 7              |
+
+Resultado de `make test` (compilado com `cc -std=c89 -Wall -Wextra -pedantic`, **sem nenhum erro ou
+aviso** — build limpo confirmado em `build.log`): as duas versões acertam os 5 casos obrigatórios,
+inclusive o Exemplo 3 (encontro diagonal de 4 blocos). Os tempos da versão paralela nesses casos
+ficam na casa de 0,0003-0,001s, mais lentos que o sequencial (0,000002-0,000007s) — esperado, já
+que matrizes tão pequenas não compensam o custo de criação de 4 threads (ver seção de desempenho
+abaixo).
 
 ## Análise de desempenho
 
-A preencher após rodar `gera-matriz` para criar uma matriz grande e medir tempos sequencial x
-paralelo com pelo menos duas quantidades de threads (ex.: 2x2 e 4x4). Incluir: tempo sequencial,
-tempo paralelo, aceleração (S = Tseq / Tpar) e, caso a versão paralela seja mais lenta em algum
-caso pequeno, a explicação (overhead de criação de threads não compensado pelo volume de
-trabalho).
+Matriz de teste: `tests/desempenho.txt`, gerada com
+
+```sh
+./gera-matriz 2000 2000 0.35 42 tests/desempenho.txt
+```
+
+2000 x 2000 células, 35% de probabilidade de `1`, semente fixa 42 (mesmo arquivo usado nas duas
+versões). Resultado: **122710 objetos** em todas as execuções abaixo, sequencial e paralelo —
+confirma que a consolidação por fronteiras também é correta em uma matriz grande, não só nos 5
+exemplos pequenos.
+
+Cada configuração foi executada 3 vezes; o valor representativo usado na aceleração é a
+**mediana** das 3 execuções (menos sensível a uma medição isolada afetada por outros processos do
+sistema).
+
+| Configuração         | Execuções (s)                  | Mediana (s) |
+|-----------------------|--------------------------------|-------------|
+| Sequencial             | 0.161240 / 0.165705 / 0.162402 | 0.162402    |
+| Paralelo 2x2 (4 threads)  | 0.052163 / 0.041640 / 0.045002 | 0.045002    |
+| Paralelo 4x4 (16 threads) | 0.059964 / 0.043145 / 0.036033 | 0.043145    |
+
+Aceleração (S = Tsequencial / Tparalelo, usando as medianas):
+
+- 2x2 (4 threads): S = 0.162402 / 0.045002 ≈ **3,61x**
+- 4x4 (16 threads): S = 0.162402 / 0.043145 ≈ **3,76x**
+
+**Discussão:** a versão paralela é claramente mais rápida que a sequencial nas duas configurações
+(o oposto do que se via nos 5 exemplos pequenos, onde o custo fixo de criar threads dominava — ver
+seção anterior). Já entre 2x2 e 4x4 o ganho adicional é pequeno (3,61x → 3,76x) apesar de
+quadruplicar o número de threads (4 → 16): a máquina de teste não tem 16 núcleos lógicos livres,
+então threads em excesso disputam CPU entre si (oversubscription) em vez de rodar todas
+simultaneamente, e cada bloco fica pequeno demais para compensar o overhead extra de criação de
+thread e de uma etapa de consolidação de fronteiras proporcionalmente maior (mais blocos = mais
+perímetro a verificar). Isso ilustra o item 38 do enunciado: nem sempre aumentar o número de
+threads aumenta a aceleração — depende do paralelismo de hardware disponível.
 
 ## Referências e ferramentas
 
