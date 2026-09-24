@@ -7,7 +7,7 @@ de referência e uma implementação paralela com Pthreads.
 ## Autoria
 
 - Rafaela Varão — <rafaelavarao12@gmail.com>
-- Gabriel Galdeiro
+- Gabriel Gauterio
 - Gabriel Dalbem
 
 ## Compilação
