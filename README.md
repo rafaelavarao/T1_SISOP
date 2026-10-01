@@ -87,12 +87,14 @@ O projeto contém duas implementações funcionalmente equivalentes:
 │   ├── adicional2-objeto-unico.txt
 │   ├── adicional3-diagonais.txt
 │   └── adicional4-celulas-isoladas.txt
-└── results/
-    ├── medicoes.csv
-    ├── gera-graficos.py
-    ├── grafico-tempo.svg
-    ├── grafico-aceleracao.svg
-    └── grafico-eficiencia.svg
+├── results/
+│   ├── medicoes.csv
+│   ├── gera-graficos.py
+│   ├── grafico-tempo.svg
+│   ├── grafico-aceleracao.svg
+│   └── grafico-eficiencia.svg
+└── slides/
+    └── Contagem paralela de objetos - T1 SISOP.pptx
 ```
 
 | Caminho | Finalidade |
@@ -109,6 +111,7 @@ O projeto contém duas implementações funcionalmente equivalentes:
 | `results/medicoes.csv` | Dados brutos das medições de desempenho (seção 9.4). |
 | `results/gera-graficos.py` | Script (Python 3, só biblioteca padrão) que gera os gráficos a partir de `medicoes.csv`. |
 | `results/grafico-*.svg` | Gráficos de tempo, aceleração e eficiência (seções 9.5 a 9.7). |
+| `slides/` | Slides da apresentação. |
 
 A matriz de desempenho (`tests/desempenho.txt`, 2000 x 2000) não é versionada por causa do tamanho (está no `.gitignore`); ela é regenerada de forma determinística com o comando da seção 9.1.
 
@@ -581,15 +584,15 @@ Como melhoria futura, a mais realista é substituir a criação de uma thread po
 
 ### 13.1 Conteúdo do vídeo
 
-- [ ] Problema e estratégia escolhida.
-- [ ] Implementação sequencial e referência de correção.
-- [ ] Decomposição, processos/threads e sincronização.
-- [ ] Consolidação de objetos que atravessam regiões.
-- [ ] Demonstração executável.
-- [ ] Testes obrigatórios e adicionais.
-- [ ] Resultados de desempenho.
-- [ ] Conclusões.
-- [ ] Participação de todos os integrantes.
+- [x] Problema e estratégia escolhida.
+- [x] Implementação sequencial e referência de correção.
+- [x] Decomposição, processos/threads e sincronização.
+- [x] Consolidação de objetos que atravessam regiões.
+- [x] Demonstração executável.
+- [x] Testes obrigatórios e adicionais.
+- [x] Resultados de desempenho.
+- [x] Conclusões.
+- [x] Participação de todos os integrantes.
 
 ## 14. Contribuições dos integrantes
 
