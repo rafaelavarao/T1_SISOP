@@ -21,7 +21,7 @@
 | Turma | Turma 330 |
 | Estratégia paralela | Pthreads |
 | Plataforma testada | Linux |
-| Commit avaliado | [`PREENCHER_HASH_DO_COMMIT_FINAL`] |
+| Commit avaliado | `32df92c`|
 
 ## Resumo
 
