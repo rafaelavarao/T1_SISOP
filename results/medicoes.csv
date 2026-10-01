@@ -1,0 +1,16 @@
+matriz,linhas,colunas,versao,grade,trabalhadores,repeticao,tempo_ms,objetos,resultado_correto
+desempenho,2000,2000,sequencial,-,1,1,108.498,122710,true
+desempenho,2000,2000,sequencial,-,1,2,99.352,122710,true
+desempenho,2000,2000,sequencial,-,1,3,104.509,122710,true
+desempenho,2000,2000,paralela,1x2,2,1,50.395,122710,true
+desempenho,2000,2000,paralela,1x2,2,2,52.116,122710,true
+desempenho,2000,2000,paralela,1x2,2,3,53.037,122710,true
+desempenho,2000,2000,paralela,2x2,4,1,32.463,122710,true
+desempenho,2000,2000,paralela,2x2,4,2,33.384,122710,true
+desempenho,2000,2000,paralela,2x2,4,3,45.511,122710,true
+desempenho,2000,2000,paralela,2x4,8,1,35.000,122710,true
+desempenho,2000,2000,paralela,2x4,8,2,29.427,122710,true
+desempenho,2000,2000,paralela,2x4,8,3,36.752,122710,true
+desempenho,2000,2000,paralela,4x4,16,1,22.811,122710,true
+desempenho,2000,2000,paralela,4x4,16,2,21.907,122710,true
+desempenho,2000,2000,paralela,4x4,16,3,22.354,122710,true

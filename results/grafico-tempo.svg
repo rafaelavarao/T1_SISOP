@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" width="720" height="400" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+<rect width="720" height="400" fill="#fcfcfb"/>
+<text x="64.0" y="28.0" font-size="16" font-weight="600" text-anchor="start" fill="#0b0b0b">Tempo de execução por configuração</text>
+<text x="64.0" y="46.0" font-size="12" font-weight="400" text-anchor="start" fill="#52514e">Tempo (ms): mediana de 3 repetições; hastes indicam mínimo e máximo</text>
+<line x1="64" y1="336.0" x2="656" y2="336.0" stroke="#e4e3df" stroke-width="1"/>
+<text x="56.0" y="340.0" font-size="12" font-weight="400" text-anchor="end" fill="#52514e">0</text>
+<line x1="64" y1="281.6" x2="656" y2="281.6" stroke="#e4e3df" stroke-width="1"/>
+<text x="56.0" y="285.6" font-size="12" font-weight="400" text-anchor="end" fill="#52514e">25</text>
+<line x1="64" y1="227.2" x2="656" y2="227.2" stroke="#e4e3df" stroke-width="1"/>
+<text x="56.0" y="231.2" font-size="12" font-weight="400" text-anchor="end" fill="#52514e">50</text>
+<line x1="64" y1="172.8" x2="656" y2="172.8" stroke="#e4e3df" stroke-width="1"/>
+<text x="56.0" y="176.8" font-size="12" font-weight="400" text-anchor="end" fill="#52514e">75</text>
+<line x1="64" y1="118.4" x2="656" y2="118.4" stroke="#e4e3df" stroke-width="1"/>
+<text x="56.0" y="122.4" font-size="12" font-weight="400" text-anchor="end" fill="#52514e">100</text>
+<line x1="64" y1="64.0" x2="656" y2="64.0" stroke="#e4e3df" stroke-width="1"/>
+<text x="56.0" y="68.0" font-size="12" font-weight="400" text-anchor="end" fill="#52514e">125</text>
+<path d="M95.2,336 V112.6 Q95.2,108.6 99.2,108.6 H147.2 Q151.2,108.6 151.2,112.6 V336 Z" fill="#2a78d6"/>
+<path d="M123.2,99.9 V119.8 M117.2,99.9 H129.2 M117.2,119.8 H129.2" fill="none" stroke="#0b0b0b" stroke-width="1.5"/>
+<text x="123.2" y="91.9" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">104,5</text>
+<text x="123.2" y="356.0" font-size="12" font-weight="400" text-anchor="middle" fill="#0b0b0b">Sequencial</text>
+<text x="123.2" y="373.0" font-size="12" font-weight="400" text-anchor="middle" fill="#52514e">1 thread</text>
+<path d="M213.6,336 V226.6 Q213.6,222.6 217.6,222.6 H265.6 Q269.6,222.6 269.6,226.6 V336 Z" fill="#2a78d6"/>
+<path d="M241.6,220.6 V226.3 M235.6,220.6 H247.6 M235.6,226.3 H247.6" fill="none" stroke="#0b0b0b" stroke-width="1.5"/>
+<text x="241.6" y="212.6" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">52,1</text>
+<text x="241.6" y="356.0" font-size="12" font-weight="400" text-anchor="middle" fill="#0b0b0b">Paralela 1x2</text>
+<text x="241.6" y="373.0" font-size="12" font-weight="400" text-anchor="middle" fill="#52514e">2 threads</text>
+<path d="M332.0,336 V267.4 Q332.0,263.4 336.0,263.4 H384.0 Q388.0,263.4 388.0,267.4 V336 Z" fill="#2a78d6"/>
+<path d="M360.0,237.0 V265.4 M354.0,237.0 H366.0 M354.0,265.4 H366.0" fill="none" stroke="#0b0b0b" stroke-width="1.5"/>
+<text x="360.0" y="229.0" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">33,4</text>
+<text x="360.0" y="356.0" font-size="12" font-weight="400" text-anchor="middle" fill="#0b0b0b">Paralela 2x2</text>
+<text x="360.0" y="373.0" font-size="12" font-weight="400" text-anchor="middle" fill="#52514e">4 threads</text>
+<path d="M450.4,336 V263.8 Q450.4,259.8 454.4,259.8 H502.4 Q506.4,259.8 506.4,263.8 V336 Z" fill="#2a78d6"/>
+<path d="M478.4,256.0 V272.0 M472.4,256.0 H484.4 M472.4,272.0 H484.4" fill="none" stroke="#0b0b0b" stroke-width="1.5"/>
+<text x="478.4" y="248.0" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">35,0</text>
+<text x="478.4" y="356.0" font-size="12" font-weight="400" text-anchor="middle" fill="#0b0b0b">Paralela 2x4</text>
+<text x="478.4" y="373.0" font-size="12" font-weight="400" text-anchor="middle" fill="#52514e">8 threads</text>
+<path d="M568.8,336 V291.4 Q568.8,287.4 572.8,287.4 H620.8 Q624.8,287.4 624.8,291.4 V336 Z" fill="#2a78d6"/>
+<path d="M596.8,286.4 V288.3 M590.8,286.4 H602.8 M590.8,288.3 H602.8" fill="none" stroke="#0b0b0b" stroke-width="1.5"/>
+<text x="596.8" y="278.4" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">22,4</text>
+<text x="596.8" y="356.0" font-size="12" font-weight="400" text-anchor="middle" fill="#0b0b0b">Paralela 4x4</text>
+<text x="596.8" y="373.0" font-size="12" font-weight="400" text-anchor="middle" fill="#52514e">16 threads</text>
+<line x1="64" y1="336" x2="656" y2="336" stroke="#52514e" stroke-width="1"/>
+</svg>

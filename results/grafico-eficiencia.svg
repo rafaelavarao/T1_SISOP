@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" width="720" height="400" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+<rect width="720" height="400" fill="#fcfcfb"/>
+<text x="64.0" y="28.0" font-size="16" font-weight="600" text-anchor="start" fill="#0b0b0b">Eficiência por quantidade de trabalhadores</text>
+<text x="64.0" y="46.0" font-size="12" font-weight="400" text-anchor="start" fill="#52514e">Eficiência E(p) = S(p) / p</text>
+<line x1="64" y1="336.0" x2="656" y2="336.0" stroke="#e4e3df" stroke-width="1"/>
+<text x="56.0" y="340.0" font-size="12" font-weight="400" text-anchor="end" fill="#52514e">0,00</text>
+<line x1="64" y1="281.6" x2="656" y2="281.6" stroke="#e4e3df" stroke-width="1"/>
+<text x="56.0" y="285.6" font-size="12" font-weight="400" text-anchor="end" fill="#52514e">0,25</text>
+<line x1="64" y1="227.2" x2="656" y2="227.2" stroke="#e4e3df" stroke-width="1"/>
+<text x="56.0" y="231.2" font-size="12" font-weight="400" text-anchor="end" fill="#52514e">0,50</text>
+<line x1="64" y1="172.8" x2="656" y2="172.8" stroke="#e4e3df" stroke-width="1"/>
+<text x="56.0" y="176.8" font-size="12" font-weight="400" text-anchor="end" fill="#52514e">0,75</text>
+<line x1="64" y1="118.4" x2="656" y2="118.4" stroke="#e4e3df" stroke-width="1"/>
+<text x="56.0" y="122.4" font-size="12" font-weight="400" text-anchor="end" fill="#52514e">1,00</text>
+<line x1="64" y1="64.0" x2="656" y2="64.0" stroke="#e4e3df" stroke-width="1"/>
+<text x="56.0" y="68.0" font-size="12" font-weight="400" text-anchor="end" fill="#52514e">1,25</text>
+<text x="101.0" y="356.0" font-size="12" font-weight="400" text-anchor="middle" fill="#52514e">1</text>
+<text x="138.0" y="356.0" font-size="12" font-weight="400" text-anchor="middle" fill="#52514e">2</text>
+<text x="212.0" y="356.0" font-size="12" font-weight="400" text-anchor="middle" fill="#52514e">4</text>
+<text x="360.0" y="356.0" font-size="12" font-weight="400" text-anchor="middle" fill="#52514e">8</text>
+<text x="656.0" y="356.0" font-size="12" font-weight="400" text-anchor="middle" fill="#52514e">16</text>
+<text x="360.0" y="380.0" font-size="12" font-weight="400" text-anchor="middle" fill="#52514e">Trabalhadores (threads)</text>
+<line x1="64.0" y1="118.4" x2="656.0" y2="118.4" stroke="#8a8983" stroke-width="2" stroke-dasharray="6 5"/>
+<text x="656.0" y="110.4" font-size="12" font-weight="400" text-anchor="end" fill="#52514e">Ideal: E(p) = 1</text>
+<path d="M101.0,118.4 L138.0,117.8 L212.0,165.7 L360.0,254.8 L656.0,272.4" fill="none" stroke="#2a78d6" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="101.0" cy="118.4" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="138.0" cy="117.8" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="212.0" cy="165.7" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="360.0" cy="254.8" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<circle cx="656.0" cy="272.4" r="4.5" fill="#2a78d6" stroke="#fcfcfb" stroke-width="2"/>
+<text x="212.0" y="153.7" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">0,78</text>
+<text x="360.0" y="242.8" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">0,37</text>
+<text x="656.0" y="260.4" font-size="12" font-weight="600" text-anchor="middle" fill="#0b0b0b">0,29</text>
+<line x1="64" y1="336" x2="656" y2="336" stroke="#52514e" stroke-width="1"/>
+</svg>

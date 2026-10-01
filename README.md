@@ -25,7 +25,7 @@
 
 ## Resumo
 
-Este trabalho conta objetos em uma matriz binária, definidos como componentes de células `1` conectadas com conectividade 8. A versão sequencial percorre a matriz em ordem de leitura e, a cada célula `1` ainda não rotulada, executa um *flood fill* iterativo com pilha explícita, que rotula todo o componente e incrementa o contador. A versão paralela divide a matriz em uma grade configurável de blocos retangulares, com uma thread POSIX por bloco; cada thread rotula os componentes locais do seu bloco escrevendo apenas em sua fatia exclusiva da matriz de rótulos e usando uma faixa de identificadores reservada, sem necessidade de exclusão mútua. Após o `pthread_join`, uma etapa sequencial percorre as fronteiras verticais e horizontais entre blocos e unifica, com união-busca, os rótulos de células vizinhas (inclusive diagonais), contando ao final as raízes distintas. As duas versões produziram os resultados esperados nas cinco matrizes obrigatórias e 122710 objetos em uma matriz 2000 x 2000. Nessa matriz, a versão paralela obteve aceleração de 3,61 com 4 threads e 3,76 com 16 threads, mostrando ganho real, mas limitado pelo número de núcleos disponíveis.
+Este trabalho conta objetos em uma matriz binária, definidos como componentes de células `1` conectadas com conectividade 8. A versão sequencial percorre a matriz em ordem de leitura e, a cada célula `1` ainda não rotulada, executa um *flood fill* iterativo com pilha explícita, que rotula todo o componente e incrementa o contador. A versão paralela divide a matriz em uma grade configurável de blocos retangulares, com uma thread POSIX por bloco; cada thread rotula os componentes locais do seu bloco escrevendo apenas em sua fatia exclusiva da matriz de rótulos e usando uma faixa de identificadores reservada, sem necessidade de exclusão mútua. Após o `pthread_join`, uma etapa sequencial percorre as fronteiras verticais e horizontais entre blocos e unifica, com união-busca, os rótulos de células vizinhas (inclusive diagonais), contando ao final as raízes distintas. As duas versões produziram os resultados esperados nas cinco matrizes obrigatórias e 122710 objetos em uma matriz 2000 x 2000. Nessa matriz, a versão paralela obteve aceleração de 3,13 com 4 threads e 4,68 com 16 threads, mostrando ganho real, mas limitado pelo número de núcleos disponíveis.
 
 **Palavras-chave:** sistemas operacionais; paralelismo; processos; threads; conectividade 8; flood fill; componentes conexos.
 
@@ -77,12 +77,22 @@ O projeto contém duas implementações funcionalmente equivalentes:
 │   ├── gera-matriz.c
 │   ├── matriz_io.c
 │   └── matriz_io.h
-└── tests/
-    ├── exemplo1.txt
-    ├── exemplo2.txt
-    ├── exemplo3.txt
-    ├── exemplo4.txt
-    └── exemplo5.txt
+├── tests/
+│   ├── exemplo1.txt
+│   ├── exemplo2.txt
+│   ├── exemplo3.txt
+│   ├── exemplo4.txt
+│   ├── exemplo5.txt
+│   ├── adicional1-zeros.txt
+│   ├── adicional2-objeto-unico.txt
+│   ├── adicional3-diagonais.txt
+│   └── adicional4-celulas-isoladas.txt
+└── results/
+    ├── medicoes.csv
+    ├── gera-graficos.py
+    ├── grafico-tempo.svg
+    ├── grafico-aceleracao.svg
+    └── grafico-eficiencia.svg
 ```
 
 | Caminho | Finalidade |
@@ -95,6 +105,10 @@ O projeto contém duas implementações funcionalmente equivalentes:
 | `src/gera-matriz.c` | Gerador de matrizes aleatórias (com semente fixa) para os testes de desempenho. |
 | `src/matriz_io.c`, `src/matriz_io.h` | Alocação contígua, leitura/validação e geração de matrizes, compartilhadas pelos programas. |
 | `tests/exemplo1.txt` a `tests/exemplo5.txt` | Cinco matrizes obrigatórias do enunciado. |
+| `tests/adicional1-zeros.txt` a `tests/adicional4-celulas-isoladas.txt` | Matrizes dos casos de teste adicionais (seção 8.3). |
+| `results/medicoes.csv` | Dados brutos das medições de desempenho (seção 9.4). |
+| `results/gera-graficos.py` | Script (Python 3, só biblioteca padrão) que gera os gráficos a partir de `medicoes.csv`. |
+| `results/grafico-*.svg` | Gráficos de tempo, aceleração e eficiência (seções 9.5 a 9.7). |
 
 A matriz de desempenho (`tests/desempenho.txt`, 2000 x 2000) não é versionada por causa do tamanho (está no `.gitignore`); ela é regenerada de forma determinística com o comando da seção 9.1.
 
@@ -102,17 +116,16 @@ A matriz de desempenho (`tests/desempenho.txt`, 2000 x 2000) não é versionada 
 
 ### 3.1 Hardware e software
 
-<!-- Preencher com os dados da máquina em que as medições da seção 9 foram feitas. -->
-
 | Item | Especificação |
 |---|---|
-| Processador | [PREENCHER modelo] |
-| Núcleos físicos | [PREENCHER] |
-| Processadores lógicos | [PREENCHER] |
-| Memória RAM | [PREENCHER] |
-| Sistema operacional | [PREENCHER distribuição/versão, ex.: Ubuntu no WSL] |
-| Arquitetura | [PREENCHER x86_64 / arm64] |
-| Compilador | [PREENCHER nome e versão, ex.: saída de `cc --version`] |
+| Equipamento | Notebook HP 200 G2i 16" |
+| Processador | Intel Core 5 120U (1,40 GHz) |
+| Núcleos físicos | 10 (2 de desempenho + 8 de eficiência) |
+| Processadores lógicos | 12 |
+| Memória RAM | 16 GB (7,6 GB disponíveis para o WSL 2) |
+| Sistema operacional | Ubuntu 26.04.1 LTS no WSL 2 (kernel 6.18.40.1-microsoft-standard-WSL2), sobre Windows 11 Home |
+| Arquitetura | x86_64 |
+| Compilador | `cc (Ubuntu 15.2.0-16ubuntu1) 15.2.0` (GCC 15.2.0) |
 | Padrão da linguagem | C89/C90 |
 | APIs POSIX utilizadas | Pthreads (`pthread_create`, `pthread_join`), `clock_gettime(CLOCK_MONOTONIC)` |
 | Flags de compilação | `-std=c89 -Wall -Wextra -pedantic` (paralela: `-pthread`) |
@@ -152,6 +165,29 @@ make
 ./conta-objetos-paralelo tests/exemplo3.txt 2 2
 make test   # executa as 5 matrizes obrigatórias nas duas versões (paralela com grade 2x2)
 ```
+
+**Teste de desempenho (matriz 2000 x 2000):**
+
+A matriz grande não está no repositório (ver seção 2), então é preciso gerá-la uma vez antes de rodar. Com a semente fixa `42`, o arquivo gerado é sempre o mesmo (cerca de 8 MB).
+
+```bash
+make
+./gera-matriz 2000 2000 0.35 42 tests/desempenho.txt   # 2000 x 2000, 35% de 1s, semente 42
+./conta-objetos-sequencial tests/desempenho.txt        # referência
+./conta-objetos-paralelo tests/desempenho.txt 2 2      # 4 threads
+./conta-objetos-paralelo tests/desempenho.txt 4 4      # 16 threads
+```
+
+As três execuções devem imprimir `Objetos: 122710`; o que muda é o `Tempo (s)`, usado nas medições da seção 9. Saída esperada da versão paralela com grade `2 x 2`:
+
+```text
+Dimensoes: 2000 x 2000
+Blocos: 2 x 2 (4 threads)
+Objetos: 122710
+Tempo (s): <tempo medido>
+```
+
+No WSL, o repositório clonado no Windows fica acessível em `/mnt/c/...` (por exemplo, `cd "/mnt/c/Users/<usuario>/<pasta>/T1_SISOP"`); os comandos acima devem ser executados a partir da raiz do repositório.
 
 ### 3.4 Formato da entrada e da saída
 
@@ -352,6 +388,12 @@ make test
 for g in "1 2" "2 1" "2 2" "3 3" "4 4" "1 8"; do
   for f in tests/exemplo*.txt; do ./conta-objetos-paralelo $f $g | grep Objetos; done
 done
+
+# casos adicionais da seção 8.3 (a grade 16x16 é limitada às dimensões da matriz)
+for f in tests/adicional*.txt; do
+  ./conta-objetos-sequencial $f | grep Objetos
+  for g in "1 2" "2 1" "2 2" "3 3" "4 4" "16 16"; do ./conta-objetos-paralelo $f $g | grep Objetos; done
+done
 ```
 
 ### 8.2 Matrizes obrigatórias
@@ -364,27 +406,28 @@ done
 | 4 | 9 x 12 | 6 | 6 | 6 | 4 (2x2); também 2, 9, 16 | Aprovado | [`tests/exemplo4.txt`](tests/exemplo4.txt), `make test` |
 | 5 | 12 x 12 | 7 | 7 | 7 | 4 (2x2); também 2, 9, 16 | Aprovado | [`tests/exemplo5.txt`](tests/exemplo5.txt), `make test` |
 
-Nesses casos pequenos a versão paralela é mais lenta (0,0003 s a 0,001 s) que a sequencial (0,000002 s a 0,000007 s), pois o custo de criar 4 threads supera o trabalho útil (ver seção 9.8).
+Nesses casos pequenos a versão paralela é mais lenta (0,0002 s a 0,0003 s) que a sequencial (0,000001 s a 0,000005 s), pois o custo de criar 4 threads supera o trabalho útil (ver seção 9.8).
 
 ### 8.3 Casos de teste adicionais
 
 | ID | Dimensões | Característica avaliada | Resultado de referência | Configurações paralelas | Resultado obtido | Situação |
 |---|---:|---|---:|---|---:|---|
-| A1 | [PREENCHER] | Matriz vazia ou somente zeros | [PREENCHER] | [PREENCHER] | [PREENCHER] | [PREENCHER] |
-| A2 | [PREENCHER] | Um único objeto ocupando várias regiões | [PREENCHER] | [PREENCHER] | [PREENCHER] | [PREENCHER] |
-| A3 | [PREENCHER] | Conexões somente diagonais | [PREENCHER] | [PREENCHER] | [PREENCHER] | [PREENCHER] |
-| A4 | 2000 x 2000 | Matriz grande usada no desempenho (35% de `1`, semente 42) | 122710 (sequencial) | 2x2, 4x4 (também 1x4, 4x1, 8x8) | 122710 | Aprovado |
-| A5 | [PREENCHER] | [Outro caso relevante] | [PREENCHER] | [PREENCHER] | [PREENCHER] | [PREENCHER] |
+| A1 | 6 x 6 | Somente zeros ([`adicional1-zeros.txt`](tests/adicional1-zeros.txt)) | 0 | 1x2, 2x1, 2x2, 3x3, 4x4, 16x16 | 0 | Aprovado |
+| A2 | 9 x 9 | Um único objeto em forma de cruz (linha 4 e coluna 4 inteiras), que ocupa todos os blocos ([`adicional2-objeto-unico.txt`](tests/adicional2-objeto-unico.txt)) | 1 | 1x2, 2x1, 2x2, 3x3, 4x4, 16x16 | 1 | Aprovado |
+| A3 | 8 x 8 | Conexões somente diagonais: diagonal principal inteira e um segmento diagonal separado de duas células ([`adicional3-diagonais.txt`](tests/adicional3-diagonais.txt)) | 2 | 1x2, 2x1, 2x2, 3x3, 4x4, 16x16 | 2 | Aprovado |
+| A4 | 2000 x 2000 | Matriz grande usada no desempenho (35% de `1`, semente 42) | 122710 (sequencial) | 1x2, 2x2, 2x4, 4x4 (também 1x4, 4x1, 8x8) | 122710 | Aprovado |
+| A5 | 9 x 9 | Células isoladas (um `1` a cada duas linhas e duas colunas), com muitos objetos de uma única célula ([`adicional4-celulas-isoladas.txt`](tests/adicional4-celulas-isoladas.txt)) | 25 | 1x2, 2x1, 2x2, 3x3, 4x4, 16x16 | 25 | Aprovado |
 
-<!-- Criar as matrizes A1-A3 e A5 em tests/ (por exemplo, com o Editor de tabelas C) e registrar os resultados. -->
+A grade `16 x 16` pede mais blocos do que há linhas e colunas e é limitada às dimensões da matriz (`6 x 6`, `9 x 9` ou `8 x 8`), de modo que cada bloco fica com uma única célula e toda conexão passa a depender da consolidação das fronteiras. No caso A3, a diagonal principal atravessa o encontro de quatro blocos na grade `2 x 2`; com conectividade 4 o resultado seria 10, e não 2.
 
 ### 8.4 Repetibilidade e determinismo
 
 | Teste | Repetições | Configurações | Resultados idênticos? | Observações |
 |---|---:|---|---|---|
 | Matriz 2000 x 2000 (A4) | 10 | Paralela 2x2 | Sim | Todas as execuções retornaram 122710, igual à sequencial. |
-| Matriz 2000 x 2000 (A4) | 3 por configuração | Sequencial, 2x2, 4x4 (medições da seção 9) | Sim | 122710 em todas as execuções. |
+| Matriz 2000 x 2000 (A4) | 3 por configuração | Sequencial, 1x2, 2x2, 2x4, 4x4 (medições da seção 9) | Sim | 122710 em todas as execuções. |
 | Exemplos 1 a 5 | 1 por grade | 1x2, 2x1, 2x2, 3x3, 4x4, 1x8 | Sim | Mesmos resultados da versão sequencial em todas as grades. |
+| Casos adicionais A1, A2, A3 e A5 | 1 por grade | 1x2, 2x1, 2x2, 3x3, 4x4, 16x16 | Sim | Mesmos resultados da versão sequencial em todas as grades. |
 
 O resultado é determinístico por construção: cada thread rotula seu bloco de forma independente, e a consolidação e a contagem final são sequenciais, então a ordem de execução das threads não altera a partição final dos componentes.
 
@@ -398,14 +441,14 @@ O resultado é determinístico por construção: cada thread rotula seu bloco de
 | Mesmos dados em todas as versões? | Sim - o mesmo arquivo, gerado com semente fixa (42) |
 | Relógio/API de medição | `clock_gettime(CLOCK_MONOTONIC, ...)` |
 | Trecho medido | Sequencial: apenas a contagem (`conta_objetos`). Paralela: da criação das threads até o fim da consolidação das fronteiras (inclui `pthread_create`, `pthread_join` e união-busca). Leitura do arquivo, alocação da matriz e impressão ficam fora. |
-| Aquecimentos descartados | [PREENCHER - nenhum ou quantos] |
+| Aquecimentos descartados | Nenhum |
 | Repetições por configuração | 3 |
 | Medida representativa | Mediana |
 | Critério para dispersão | Amplitude (máximo - mínimo) |
-| Carga do sistema durante os testes | [PREENCHER] |
+| Carga do sistema durante os testes | Uso normal de desktop no Windows (editor de código e sincronização de arquivos abertos); *load average* do WSL de 0,08 imediatamente antes das medições |
 | Flags de otimização | Nenhuma (`-std=c89 -Wall -Wextra -pedantic`, nível padrão `-O0`) |
 
-As medições brutas estão na seção 9.4. [PENDENTE: versionar os dados brutos em `results/medicoes.csv`, conforme o Apêndice B.]
+As medições brutas estão na seção 9.4 e no arquivo [`results/medicoes.csv`](results/medicoes.csv), no formato do Apêndice B.
 
 ### 9.2 Métricas
 
@@ -425,48 +468,50 @@ $$
 
 | Versão | Trabalhadores (`p`) | Tempo representativo (ms) | Dispersão (ms) | Aceleração `S(p)` | Eficiência `E(p)` | Resultado correto? |
 |---|---:|---:|---:|---:|---:|---|
-| Sequencial | 1 | 162,402 | 4,465 | 1,00 | 1,00 | Sim |
-| Paralela (2x2) | 4 | 45,002 | 10,523 | 3,61 | 0,90 | Sim |
-| Paralela (4x4) | 16 | 43,145 | 23,931 | 3,76 | 0,24 | Sim |
-
-<!-- Recomenda-se incluir também p = 2 (grade 1x2) e p = 8 (grade 2x4). -->
+| Sequencial | 1 | 104,509 | 9,146 | 1,00 | 1,00 | Sim |
+| Paralela (1x2) | 2 | 52,116 | 2,642 | 2,01 | 1,00 | Sim |
+| Paralela (2x2) | 4 | 33,384 | 13,048 | 3,13 | 0,78 | Sim |
+| Paralela (2x4) | 8 | 35,000 | 7,325 | 2,99 | 0,37 | Sim |
+| Paralela (4x4) | 16 | 22,354 | 0,904 | 4,68 | 0,29 | Sim |
 
 ### 9.4 Dados brutos das repetições
 
 | Versão | Trabalhadores | Repetição 1 (ms) | Repetição 2 (ms) | Repetição 3 (ms) | Medida representativa (ms) |
 |---|---:|---:|---:|---:|---:|
-| Sequencial | 1 | 161,240 | 165,705 | 162,402 | 162,402 |
-| Paralela (2x2) | 4 | 52,163 | 41,640 | 45,002 | 45,002 |
-| Paralela (4x4) | 16 | 59,964 | 43,145 | 36,033 | 43,145 |
+| Sequencial | 1 | 108,498 | 99,352 | 104,509 | 104,509 |
+| Paralela (1x2) | 2 | 50,395 | 52,116 | 53,037 | 52,116 |
+| Paralela (2x2) | 4 | 32,463 | 33,384 | 45,511 | 33,384 |
+| Paralela (2x4) | 8 | 35,000 | 29,427 | 36,752 | 35,000 |
+| Paralela (4x4) | 16 | 22,811 | 21,907 | 22,354 | 22,354 |
 
 ### 9.5 Gráfico de tempo de execução
 
-[PENDENTE: gerar `results/grafico-tempo.png` a partir de `results/medicoes.csv` e inseri-lo aqui com `![Tempo de execução por quantidade de trabalhadores](results/grafico-tempo.png)`.]
+![Gráfico de colunas com o tempo mediano de execução: sequencial 104,5 ms; paralela 1x2 52,1 ms; 2x2 33,4 ms; 2x4 35,0 ms; 4x4 22,4 ms](results/grafico-tempo.svg)
 
-**Figura 1 -** Tempo de execução da versão sequencial e das configurações paralelas. Barras de erro representam a amplitude das 3 repetições. Fonte: elaborado pelo grupo.
+**Figura 1 -** Tempo de execução da versão sequencial e das configurações paralelas. As hastes representam o mínimo e o máximo das 3 repetições. Fonte: elaborado pelo grupo, a partir de [`results/medicoes.csv`](results/medicoes.csv) com `python3 results/gera-graficos.py`.
 
 ### 9.6 Gráfico de aceleração
 
-[PENDENTE: gerar `results/grafico-aceleracao.png` e inseri-lo aqui.]
+![Gráfico de linha da aceleração observada (1,00; 2,01; 3,13; 2,99; 4,68 para 1, 2, 4, 8 e 16 threads) comparada com a linha ideal S(p) = p](results/grafico-aceleracao.svg)
 
 **Figura 2 -** Aceleração observada em função da quantidade de trabalhadores. A linha ideal corresponde a `S(p) = p`. Fonte: elaborado pelo grupo.
 
 ### 9.7 Gráfico de eficiência
 
-[PENDENTE: gerar `results/grafico-eficiencia.png` e inseri-lo aqui.]
+![Gráfico de linha da eficiência paralela (1,00; 1,00; 0,78; 0,37; 0,29 para 1, 2, 4, 8 e 16 threads) comparada com a linha ideal E(p) = 1](results/grafico-eficiencia.svg)
 
 **Figura 3 -** Eficiência paralela em função da quantidade de trabalhadores. Fonte: elaborado pelo grupo.
 
 ### 9.8 Análise dos resultados
 
-- **Ganho em relação à versão sequencial:** na matriz 2000 x 2000 a versão paralela é claramente mais rápida (3,61 com 4 threads e 3,76 com 16 threads). A eficiência de 0,90 com 4 threads indica que quase todo o trabalho foi de fato executado em paralelo.
-- **Efeito da quantidade de trabalhadores:** quadruplicar as threads (4 para 16) aumentou a aceleração só de 3,61 para 3,76, e a eficiência caiu de 0,90 para 0,24. A máquina de teste não tem 16 núcleos lógicos livres, então as threads excedentes disputam CPU entre si (*oversubscription*) em vez de executar simultaneamente. Aumentar o número de threads além do paralelismo de hardware não aumenta a aceleração.
+- **Ganho em relação à versão sequencial:** na matriz 2000 x 2000 a versão paralela é claramente mais rápida em todas as configurações: 2,01 com 2 threads, 3,13 com 4, 2,99 com 8 e 4,68 com 16. Com 2 threads a aceleração é praticamente a ideal (eficiência 1,00; os 0,01 acima de 2 estão dentro da dispersão das medições), e a eficiência de 0,78 com 4 threads indica que a maior parte do trabalho foi de fato executada em paralelo.
+- **Efeito da quantidade de trabalhadores:** a aceleração cresce de forma quase linear até 4 threads e depois satura: com 8 threads (2,99) não houve ganho em relação a 4 (3,13) - a diferença entre as medianas, 1,6 ms, é menor que a amplitude das repetições -, e com 16 threads chegou a 4,68, com a eficiência caindo de 0,78 para 0,37 e 0,29. A máquina de teste tem 12 processadores lógicos (seção 3.1), então com 16 threads há mais threads do que processadores e as excedentes disputam CPU entre si (*oversubscription*) em vez de executar simultaneamente. Além disso, 8 dos 10 núcleos são de eficiência, mais lentos que os de desempenho, de modo que as threads adicionais não rendem o mesmo que as primeiras; essa é a explicação mais provável para a saturação, mas ela não foi medida isoladamente. O ganho acima de 4 threads existe, mas fica muito abaixo do proporcional.
 - **Criação e finalização de threads:** nas matrizes obrigatórias (até 12 x 12) a versão paralela é mais lenta que a sequencial (S(p) < 1), porque o custo fixo de criar e aguardar 4 threads (centenas de microssegundos) é muito maior que o trabalho útil (poucos microssegundos). O paralelismo só compensa quando o volume de dados é grande.
 - **Comunicação, sincronização e contenção:** não há mutex nem espera entre threads durante a fase paralela, então não há contenção por bloqueios. O único ponto de sincronização é o `pthread_join`.
 - **Granularidade e balanceamento:** com 16 blocos cada bloco tem 500 x 500 células, menos trabalho por thread para amortizar o custo de criação. A divisão equilibrada de linhas e colunas e a distribuição homogênea da matriz aleatória mantêm a carga semelhante entre blocos.
 - **Custo da consolidação:** a consolidação cresce com o perímetro da grade (mais blocos, mais fronteiras para verificar) e é sequencial; com 4x4 há 6 fronteiras (3 verticais e 3 horizontais) de 2000 células, contra 2 fronteiras com 2x2.
 - **Memória e cache:** as matrizes são alocadas de forma contígua, o que favorece a localidade. Na grade em blocos, cada thread percorre trechos de linha de apenas `colunas / blocos_coluna` elementos, e várias threads disputam a mesma largura de banda de memória.
-- **Dispersão:** a amplitude das medições paralelas (10,5 ms e 23,9 ms) é maior que a da sequencial (4,5 ms), pois o tempo depende do escalonamento das threads pelo sistema operacional e de outros processos em execução. Com apenas 3 repetições a mediana é mais robusta que a média.
+- **Dispersão:** a maior amplitude foi a da grade 2x2 (13,0 ms, por causa de uma repetição de 45,5 ms contra 32,5 ms e 33,4 ms nas outras duas), seguida da sequencial (9,1 ms) e da grade 2x4 (7,3 ms); as grades 1x2 e 4x4 variaram só 2,6 ms e 0,9 ms. O tempo depende do escalonamento das threads pelo sistema operacional e de outros processos em execução, e uma única repetição atípica já altera a amplitude. Com apenas 3 repetições a mediana é mais robusta que a média.
 - **Trechos que permanecem sequenciais:** leitura do arquivo, particionamento, consolidação das fronteiras e contagem das raízes. Pela Lei de Amdahl, essa fração sequencial também limita a aceleração máxima.
 
 ## 10. Tratamento de erros e qualidade do código
@@ -489,7 +534,7 @@ $$
 | Compilação C89/C90 | `make` | Sem erros |
 | Avisos do compilador | `-Wall -Wextra -pedantic` | Nenhum aviso |
 | Vazamentos de memória | `valgrind --leak-check=full` (Exemplo 5, sequencial e paralela 3x3) | "All heap blocks were freed -- no leaks are possible"; 0 erros |
-| Condições de corrida | ThreadSanitizer (`cc -fsanitize=thread`), Exemplos 1 a 5 com grade 3x3 | Nenhum aviso de *data race* |
+| Condições de corrida | ThreadSanitizer (`cc -fsanitize=thread`), Exemplos 1 a 5 e casos adicionais A1, A2, A3 e A5 com grade 3x3 | Nenhum aviso de *data race* |
 
 ### 10.3 Separação de responsabilidades
 
@@ -508,7 +553,18 @@ A entrada e a alocação ficam em `src/matriz_io.c` (`aloca_matriz`, `libera_mat
 
 ## 12. Conclusão
 
-[PREENCHER em dois ou três parágrafos: confirme se os objetivos foram alcançados; sintetize as evidências de correção; avalie o desempenho; indique o principal aprendizado sobre processos/threads, sincronização e consolidação; registre uma melhoria futura realista.]
+Os objetivos do trabalho foram alcançados. As versões sequencial e paralela contam os objetos com conectividade 8 e produziram exatamente os mesmos resultados em todos os testes: as cinco matrizes obrigatórias, os quatro casos adicionais (somente zeros, objeto único que ocupa todos os blocos, conexões apenas diagonais e células isoladas) e a matriz 2000 x 2000, com 122710 objetos em todas as grades e repetições. A compilação em C89 não gera avisos e o ThreadSanitizer não apontou condições de corrida. No desempenho, a versão paralela foi mais rápida que a sequencial na matriz grande em todas as configurações, com aceleração de 2,01 com 2 threads, 3,13 com 4 e 4,68 com 16; nas matrizes pequenas ela é mais lenta, porque o custo de criar as threads supera o trabalho útil.
+
+O maior desafio do grupo foi a linguagem C, principalmente entender ponteiro para ponteiro: a matriz como `int **` sobre um único bloco contíguo de memória e a passagem de `int ***` para que `carrega_matriz` devolva a matriz alocada. Vencida essa etapa, o trabalho nos ensinou sobre threads de forma profunda, o que vai nos ajudar como desenvolvedores no futuro. Os principais aprendizados foram:
+
+- a forma mais simples de evitar condições de corrida é projetar a divisão do trabalho para que as threads não compartilhem escrita (regiões disjuntas e faixas exclusivas de rótulos), em vez de proteger tudo com mutex;
+- dividir o problema é só metade da solução: somar as contagens locais dá o resultado errado, e a consolidação das fronteiras, inclusive nas diagonais e no encontro de quatro blocos, é o que garante a correção;
+- o `pthread_join` não serve apenas para esperar as threads, ele também define o momento em que a thread principal pode ler com segurança o que elas escreveram;
+- mais threads não significam mais velocidade: o ganho é limitado pelos núcleos da máquina, pela parte do programa que continua sequencial e pelo custo de criar as threads;
+- medir desempenho exige método: mesma entrada para todas as versões, repetições, mediana e atenção à dispersão, porque uma única execução pode enganar;
+- em C, toda alocação e toda chamada de sistema precisam ter o retorno verificado e o recurso liberado, o que exige disciplina que linguagens de mais alto nível escondem.
+
+Como melhoria futura, a mais realista é substituir a criação de uma thread por bloco por um conjunto fixo de threads, do tamanho do número de processadores, que retira blocos de uma fila; isso evitaria o excesso de threads observado com 16 trabalhadores em uma máquina de 12 processadores lógicos. Outra melhoria seria armazenar a matriz como `unsigned char`, reduzindo o uso de memória e de cache.
 
 ## 13. Vídeo de apresentação
 
@@ -539,12 +595,12 @@ A entrada e a alocação ficam em `src/matriz_io.c` (`aloca_matriz`, `libera_mat
 
 | Atividade | Rafaela Varão | Gabriel Gauterio | Gabriel Dalbem | Evidência/observação |
 |---|---|---|---|---|
-| Projeto da solução sequencial | [PREENCHER] | [PREENCHER] | [PREENCHER] | [PREENCHER] |
-| Projeto da solução paralela | [PREENCHER] | [PREENCHER] | [PREENCHER] | [PREENCHER] |
-| Sincronização/comunicação | [PREENCHER] | [PREENCHER] | [PREENCHER] | [PREENCHER] |
-| Consolidação | [PREENCHER] | [PREENCHER] | [PREENCHER] | [PREENCHER] |
-| Testes e medições | [PREENCHER] | [PREENCHER] | [PREENCHER] | [PREENCHER] |
-| Documentação e apresentação | [PREENCHER] | [PREENCHER] | [PREENCHER] | [PREENCHER] |
+| Projeto da solução sequencial | Participou | Participou | Participou | Atividade realizada em conjunto pelos três integrantes |
+| Projeto da solução paralela | Participou | Participou | Participou | Atividade realizada em conjunto pelos três integrantes |
+| Sincronização/comunicação | Participou | Participou | Participou | Atividade realizada em conjunto pelos três integrantes |
+| Consolidação | Participou | Participou | Participou | Atividade realizada em conjunto pelos três integrantes |
+| Testes e medições | Participou | Participou | Participou | Atividade realizada em conjunto pelos três integrantes |
+| Documentação e apresentação | Participou | Participou | Participou | Atividade realizada em conjunto pelos três integrantes |
 
 Todos os integrantes declaram compreender integralmente o código, as estruturas de dados, a divisão do trabalho, a sincronização, a comunicação, a consolidação e os resultados apresentados.
 
@@ -555,9 +611,10 @@ Todos os integrantes declaram compreender integralmente o código, as estruturas
 | Editor de tabelas C | Auxiliar na criação de matrizes de teste | [https://filipomor.com/editor-tabelas-c](https://filipomor.com/editor-tabelas-c) | Não se aplica | `tests/` |
 | POSIX Threads (biblioteca do sistema) | Criação e espera das threads | `pthread.h` | Não se aplica | `src/conta-objetos-paralelo.c` |
 | Valgrind e ThreadSanitizer | Verificação de vazamentos e de condições de corrida | [valgrind.org](https://valgrind.org), GCC `-fsanitize=thread` | GPL / Apache 2.0 | Verificação (seção 10.2) |
-| [PREENCHER - ex.: ferramentas de IA, artigos, exemplos] | [PREENCHER] | [PREENCHER] | [PREENCHER] | [PREENCHER] |
+| Claude Code (Anthropic), modelos Claude Sonnet 5 e Claude Opus 5.5 | Ferramenta de IA: apoio na implementação das versões sequencial e paralela, na criação dos casos de teste adicionais, na execução das medições, na geração dos gráficos e na redação deste relatório | [https://claude.com/claude-code](https://claude.com/claude-code) | Serviço comercial; não se aplica ao código gerado | `src/`, `tests/`, `results/`, `Makefile`, `README.md` |
+| ChatGPT (OpenAI), versão gratuita | Ferramenta de IA: [PREENCHER modelo exato e para que o grupo usou] | [https://chatgpt.com](https://chatgpt.com) | Serviço gratuito; não se aplica | [PREENCHER] |
 
-<!-- Declare aqui ferramentas de IA e códigos externos eventualmente utilizados, explicando como os resultados foram verificados e adaptados. -->
+**Uso de ferramentas de IA.** Os commits feitos com apoio do Claude Code estão identificados no histórico do repositório pela linha `Co-Authored-By`. O que foi produzido com essas ferramentas foi verificado da seguinte forma: os resultados das duas versões foram comparados com os valores esperados do enunciado nas cinco matrizes obrigatórias (`make test`) e entre si nos casos adicionais e na matriz 2000 x 2000; o código foi compilado com `-std=c89 -Wall -Wextra -pedantic` sem avisos e executado com o ThreadSanitizer sem avisos de condição de corrida; e os tempos da seção 9 foram medidos na máquina descrita na seção 3.1, com os dados brutos em [`results/medicoes.csv`](results/medicoes.csv).
 
 ## 16. Checklist de entrega
 
@@ -584,14 +641,14 @@ Todos os integrantes declaram compreender integralmente o código, as estruturas
 - [x] As medições foram repetidas e o valor representativo foi explicado.
 - [x] Tempo sequencial, tempo paralelo, aceleração e eficiência foram informados.
 - [x] Resultados em que a versão paralela foi mais lenta foram explicados.
-- [ ] Dados brutos, tabelas e gráficos estão versionados no repositório.
+- [x] Dados brutos, tabelas e gráficos estão versionados no repositório.
 
 ### Repositório e apresentação
 
 - [ ] O repositório do GitHub está público.
 - [x] `README.md` contém descrição, autoria, compilação, execução e arquitetura.
 - [x] O `Makefile` ou as instruções equivalentes permitem compilação reproduzível.
-- [ ] As matrizes de teste e seus resultados estão incluídos.
+- [x] As matrizes de teste e seus resultados estão incluídos.
 - [x] A análise de desempenho está incluída.
 - [ ] Os slides estão em `slides/apresentacao.pdf`.
 - [ ] O link do vídeo está acessível e o vídeo tem até 10 minutos.
@@ -616,8 +673,13 @@ make test
 # Execução dos testes de desempenho
 ./gera-matriz 2000 2000 0.35 42 tests/desempenho.txt
 ./conta-objetos-sequencial tests/desempenho.txt
+./conta-objetos-paralelo tests/desempenho.txt 1 2
 ./conta-objetos-paralelo tests/desempenho.txt 2 2
+./conta-objetos-paralelo tests/desempenho.txt 2 4
 ./conta-objetos-paralelo tests/desempenho.txt 4 4
+
+# Geração dos gráficos a partir de results/medicoes.csv
+python3 results/gera-graficos.py
 
 # Verificação de memória e de condições de corrida
 valgrind --leak-check=full ./conta-objetos-paralelo tests/exemplo5.txt 3 3
@@ -625,14 +687,14 @@ cc -fsanitize=thread -g -std=c89 -pthread src/conta-objetos-paralelo.c src/matri
 ./paralelo-tsan tests/exemplo3.txt 3 3
 ```
 
-## Apêndice B - Formato sugerido dos dados brutos
+## Apêndice B - Formato dos dados brutos
 
-O arquivo `results/medicoes.csv` pode adotar o seguinte cabeçalho:
+O arquivo [`results/medicoes.csv`](results/medicoes.csv) tem uma linha por repetição, com o seguinte cabeçalho (primeiras linhas como exemplo):
 
 ```csv
-matriz,linhas,colunas,versao,trabalhadores,repeticao,tempo_ms,objetos,resultado_correto
-desempenho,2000,2000,sequencial,1,1,161.240,122710,true
-desempenho,2000,2000,paralela,4,1,52.163,122710,true
+matriz,linhas,colunas,versao,grade,trabalhadores,repeticao,tempo_ms,objetos,resultado_correto
+desempenho,2000,2000,sequencial,-,1,1,108.498,122710,true
+desempenho,2000,2000,paralela,2x2,4,1,32.463,122710,true
 ```
 
 ## Apêndice C - Correspondência com os critérios de avaliação
