@@ -573,12 +573,12 @@ Como melhoria futura, a mais realista é substituir a criação de uma thread po
 
 | Campo | Informação |
 |---|---|
-| Plataforma | [YouTube / Vimeo] |
-| Link privado ou não listado | [INSERIR URL COMPLETA] |
-| Duração | [MM:SS - máximo de 10 minutos] |
-| Privacidade | [Não listado / privado compartilhado com o professor / protegido por senha] |
-| Senha, se aplicável | [PREENCHER ou `Não se aplica`] |
-| Data da última verificação do acesso | [DD/MM/AAAA] |
+| Plataforma | YouTube |
+| Link privado ou não listado | [[video](https://youtu.be/8PSvcEmA8-g) |
+| Duração | 09:25 - máximo de 10 minutos |
+| Privacidade | Não listado |
+| Senha, se aplicável | [ `Não se aplica`] |
+| Data da última verificação do acesso | [03/10/2026] |
 
 > **Importante:** o vídeo deve permanecer acessível ao professor durante todo o período de avaliação. No YouTube, um vídeo configurado como privado precisa ser explicitamente compartilhado com a conta indicada pelo professor; se essa conta não estiver disponível, use a opção **não listado**. No Vimeo, informe a senha no quadro acima quando houver proteção por senha. Teste o link em uma janela anônima antes da entrega.
 
