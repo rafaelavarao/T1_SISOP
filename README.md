@@ -648,15 +648,15 @@ Todos os integrantes declaram compreender integralmente o código, as estruturas
 
 ### Repositório e apresentação
 
-- [ ] O repositório do GitHub está público.
+- [x] O repositório do GitHub está público.
 - [x] `README.md` contém descrição, autoria, compilação, execução e arquitetura.
 - [x] O `Makefile` ou as instruções equivalentes permitem compilação reproduzível.
 - [x] As matrizes de teste e seus resultados estão incluídos.
 - [x] A análise de desempenho está incluída.
-- [ ] Os slides estão em `slides/apresentacao.pdf`.
-- [ ] O link do vídeo está acessível e o vídeo tem até 10 minutos.
-- [ ] Ferramentas, referências, bibliotecas e códigos externos foram identificados.
-- [ ] O hash do commit avaliado foi registrado neste relatório.
+- [x] Os slides estão em `slides/apresentacao.pdf`.
+- [x] O link do vídeo está acessível e o vídeo tem até 10 minutos.
+- [x] Ferramentas, referências, bibliotecas e códigos externos foram identificados.
+- [x] O hash do commit avaliado foi registrado neste relatório.
 
 ## Apêndice A - Registro de comandos
 
