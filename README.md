@@ -5,7 +5,8 @@
 > **Instituição:** Pontifícia Universidade Católica do Rio Grande do Sul - Escola Politécnica  
 > **Repositório:** [https://github.com/rafaelavarao/T1_SISOP](https://github.com/rafaelavarao/T1_SISOP)  
 > **Versão do relatório:** 1.0  
-> **Data:** 29/09/2026
+> **Data:** 29/09/2026                                                                                                           
+> **Video:** [https://youtu.be/8PSvcEmA8-g](https://youtu.be/8PSvcEmA8-g)
 
 ## Identificação
 
