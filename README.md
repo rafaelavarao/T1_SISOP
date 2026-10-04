@@ -22,7 +22,7 @@
 | Turma | Turma 330 |
 | Estratégia paralela | Pthreads |
 | Plataforma testada | Linux |
-| Commit avaliado | `3ff14f7`|
+| Commit avaliado | `614405f`|
 
 ## Resumo
 
